@@ -29,7 +29,7 @@ export default function(actions, observablesFactory, Component){
     }
 
     render(){
-      return <Component observables={this.state} actions={this.actions} {...this.props} />;
+      return <Component actions={this.actions} {...this.props} {...this.state} />;
     }
   }
 };
