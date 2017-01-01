@@ -1,0 +1,43 @@
+{
+  "name": "reaxjs",
+  "version": "0.1.0",
+  "description": "react+rxjs",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariusGundersen/reaxjs.git"
+  },
+  "keywords": [
+    "react",
+    "rxjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mariusGundersen/reaxjs/issues"
+  },
+  "homepage": "https://github.com/mariusGundersen/reaxjs#readme",
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "babel-preset-react": "^6.16.0",
+    "react": "^15.4.1",
+    "rxjs": "^5.0.2"
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  },
+  "babel": {
+    "presets": [
+      "react",
+      "es2015",
+      "stage-2",
+      "stage-3"
+    ]
+  }
+}
