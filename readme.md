@@ -124,6 +124,38 @@ class PureTest extends React.Component{
 
 ## Props
 
+Props passed to the `connect`ed component will be forwarded to the pure component, and will be passed into the `observablesFactory` method as an observable. This way you can react to prop changes using RxJS. As an example, consider a component that can be incremented/decremented, with a prop to control how much to increment/decrement by:
+
+```js
+function observablesFactory(actions, props){
+  return Rx.Observable.merge(
+    actions.increment.withLatestFrom(props.pluck('delta'), (_, delta) => +delta),
+    actions.decrement.withLatestFrom(props.pluck('delta'), (_, delta) => -delta)
+  ).scan((sum, delta) => sum+delta, 0);
+}
+
+//...
+
+<Counter delta={1} />
+```
+
+ If you are only interested in the initial props values (ie, they should never change), then you can use the following pattern:
+
+```js
+function observablesFactory(actions, props){
+  return props.first().switchMap(props => {
+    return Rx.Observable.merge(
+      actions.increment.map(x => +1),
+      actions.decrement.map(x => -1)
+    ).scan((sum, delta) => sum+delta, props.initial);
+  })
+}
+
+//...
+
+<Counter initial={0} />
+```
+
 
 
 ## Inspiration
