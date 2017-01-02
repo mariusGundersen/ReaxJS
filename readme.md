@@ -4,7 +4,7 @@
 
 ## Basic example
 
-Here is a small
+Here is a small example using ReaxJS
 
 ```js
 import React from 'react';
@@ -13,9 +13,8 @@ import {connect} from 'reaxjs';
 
 const Test = connect({
   input: event => event.target.value
-},({
-  input
-}) => ({
+},
+({input}) => ({
   output: input
     .map(x => x.toUpperCase()).
     .startWith('')
@@ -106,6 +105,26 @@ connect({
   </div>
 ));
 ```
+
+`connect` can be partially applied by ommiting the last parameter (the component), so it can also be used as a decorator:
+
+```js
+@connect(actions, observablesFactory)
+class PureTest extends React.Component{
+  render(){
+    return (
+      <div>
+        <input onChange={this.props.actions.input} />
+        <span>{this.props.output}</span>
+      </div>
+    );
+  }
+}
+```
+
+## Props
+
+
 
 ## Inspiration
 
