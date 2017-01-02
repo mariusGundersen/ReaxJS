@@ -116,4 +116,4 @@ This is based on my experience working with [react](https://facebook.github.io/r
 * React-most doesn't use rxjs by default.
 * React-most pushes every event through the same observable, and uses stringly typed keys and switch statements, instead of the power of observables.
 
-ReaxJS tries to solve all of these issues.
+ReaxJS is my attempt to solve all of these issues.
