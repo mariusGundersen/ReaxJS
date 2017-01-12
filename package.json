@@ -1,6 +1,6 @@
 {
   "name": "reaxjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "react+rxjs",
   "main": "lib/main.js",
   "scripts": {
