@@ -10,7 +10,7 @@ export default function connect(actions, observablesFactory, Component){
       const observableProps = new Rx.Observable(s => this.componentWillReceiveProps = nextProps => s.next(nextProps))
         .startWith(props);
 
-      const {functions, sources} = deconstruct(actions);
+      const {functions, sources} = deconstructActions(actions);
       const observables = observablesFactory(sources, observableProps, props);
 
       this.functions = functions;
