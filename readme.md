@@ -1,6 +1,14 @@
 # ReaxJS
 
+[![npm version](https://img.shields.io/npm/v/reaxjs.svg?style=flat-square)](https://www.npmjs.com/package/reaxjs)
+
 > React + rxjs
+
+## Installation
+
+Install using npm/yarn
+
+   npm install --save reaxjs
 
 ## Basic example
 
@@ -78,7 +86,7 @@ function observablesFactory(actions, props){
   return {
     output: toUpperCase(actions.input),
     // add more observables here with the format name: Rx.Observable
-  }
+  };
 }
 ```
 
@@ -128,10 +136,12 @@ Props passed to the `connect`ed component will be forwarded to the pure componen
 
 ```js
 function observablesFactory(actions, props){
-  return Rx.Observable.merge(
-    actions.increment.withLatestFrom(props.pluck('delta'), (_, delta) => +delta),
-    actions.decrement.withLatestFrom(props.pluck('delta'), (_, delta) => -delta)
-  ).scan((sum, delta) => sum+delta, 0);
+  return {
+    sum: Rx.Observable.merge(
+      actions.increment.withLatestFrom(props.pluck('delta'), (_, delta) => +delta),
+      actions.decrement.withLatestFrom(props.pluck('delta'), (_, delta) => -delta)
+    ).scan((sum, delta) => sum+delta, 0)
+  };
 }
 
 //...
@@ -139,16 +149,16 @@ function observablesFactory(actions, props){
 <Counter delta={1} />
 ```
 
- If you are only interested in the initial props values (ie, they should never change), then you can use the following pattern:
+ If you are only interested in the initial props values (ie, they should never change), then you can use the third parameter:
 
 ```js
-function observablesFactory(actions, props){
-  return props.first().switchMap(props => {
-    return Rx.Observable.merge(
+function observablesFactory(actions, props, initalProps){
+  return {
+    sum: Rx.Observable.merge(
       actions.increment.map(x => +1),
       actions.decrement.map(x => -1)
-    ).scan((sum, delta) => sum+delta, props.initial);
-  })
+    ).scan((sum, delta) => sum+delta, initialProps.initial);
+  }
 }
 
 //...
