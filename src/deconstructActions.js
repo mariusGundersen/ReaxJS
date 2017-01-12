@@ -1,16 +1,18 @@
 import Rx from 'rxjs/Rx';
 
-export default function deconstructActions(actions){
+export default function deconstruct(actions){
   const functions = Object.create(null);
-  const observables = Object.create(null);
-  for(const key of Object.keys(actions)){
-    if(typeof actions[key] !== 'function') throw new Error(`\`definition.actions['${key}']\` must be a function`);
+  const sources = Object.create(null);
+  for(let key of Object.keys(actions)){
+    if(typeof actions[key] !== 'function') throw new Error(`action ${key} must be a function`);
 
-    observables[key] = new Rx.Observable(s => functions[key] = v => s.next(v));
+    sources[key] = new Rx.Observable(s => {
+      functions[key] = v => s.next(actions[key](v))
+    });
   }
 
   return {
     functions,
-    observables
+    sources
   };
 }

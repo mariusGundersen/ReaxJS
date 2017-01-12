@@ -3,37 +3,42 @@ import Rx from 'rxjs/Rx';
 
 import deconstructActions from './deconstructActions.js';
 
-export default function(actions, observablesFactory, Component){
-  return class ReaxConnector extends React.Component{
+export default function connect(actions, observablesFactory, Component){
+  return class extends React.Component{
     constructor(props){
       super(props);
-
       const observableProps = new Rx.Observable(s => this.componentWillReceiveProps = nextProps => s.next(nextProps))
         .startWith(props);
 
-      const {functions: actionFunctions, observables: actionObservables} = deconstructActions(actions);
-      const observables = observablesFactory(actionObservables, observableProps);
+      const {functions, sources} = deconstruct(actions);
+      const observables = observablesFactory(sources, observableProps, props);
 
-      if(!observables || typeof observables !== 'object') throw new Error('`definition.observables` must return an object');
+      this.functions = functions;
+      this.subscriptions = Rx.Observable.merge(
+        ...Object.keys(observables).map(x => observables[x]),
+        ...Object.keys(sources).map(x => sources[x]),
+        observableProps
+      ).subscribe();
 
-      this.state = {};
-      this.actions = actionFunctions;
-      this.unsubscriber = Rx.Observable.merge(
-        observableProps,
-        ...Object.keys(observables).map(key => observables[key]),
-        ...Object.keys(actionObservables).map(key => actionObservables[key]));
-
+      var state = {};
       for(let key of Object.keys(observables)){
-        observables[key].forEach(value => this.setState({[key]: value}));
+        observables[key].forEach(value => {
+          if(this.state){
+            this.setState({[key]: value});
+          }else{
+            state[key] = value;
+          }
+        });
       }
+      this.state = state;
     }
 
-    cmponentWillUnmount(){
-      this.unsubscriber.unsubscribe();
+    cmponentDidUnmount(){
+      this.subscriptions.unsubscribe();
     }
 
     render(){
-      return <Component actions={this.actions} {...this.props} {...this.state} />;
+      return <Component actions={this.functions} {...this.props} {...this.state} />;
     }
   }
-};
+}

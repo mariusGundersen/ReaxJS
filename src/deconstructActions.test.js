@@ -9,22 +9,22 @@ test('not a function should throw', t => {
   }));
 });
 
-test('returns an object with functions and observables', t => {
+test('returns an object with functions and sources', t => {
   const result = deconstructActions({
     'test': () => null
   });
 
   t.truthy(result.functions);
-  t.truthy(result.observables);
+  t.truthy(result.sources);
 });
 
-test('returns observables', t => {
+test('returns sources', t => {
   const result = deconstructActions({
     'test': () => null
   });
 
-  t.truthy(result.observables.test);
-  t.true(result.observables.test instanceof Rx.Observable);
+  t.truthy(result.sources.test);
+  t.true(result.sources.test instanceof Rx.Observable);
 });
 
 test('returns functions', t => {
@@ -33,7 +33,7 @@ test('returns functions', t => {
   });
 
   //force subscriber to be called
-  result.observables.test.forEach(() => null);
+  result.sources.test.forEach(() => null);
 
   t.truthy(result.functions.test);
   t.is(typeof result.functions.test, 'function');
@@ -45,7 +45,7 @@ test('triggering an action should trigger the observable value', t => {
     'test': x => x
   });
 
-  result.observables.test.forEach(x => {
+  result.sources.test.forEach(x => {
     t.is(x, 'hello');
   });
 
