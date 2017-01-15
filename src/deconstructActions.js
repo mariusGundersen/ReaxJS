@@ -6,9 +6,9 @@ export default function deconstruct(actions){
   for(let key of Object.keys(actions)){
     if(typeof actions[key] !== 'function') throw new Error(`action ${key} must be a function`);
 
-    sources[key] = new Rx.Observable(s => {
-      functions[key] = v => s.next(actions[key](v))
-    });
+    const subject = new Rx.Subject();
+    functions[key] = v => subject.next(actions[key](v));
+    sources[key] = new Rx.Observable(s => subject.subscribe(s));
   }
 
   return {
