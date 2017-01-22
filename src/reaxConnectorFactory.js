@@ -7,7 +7,9 @@ export default function connect(actions, observablesFactory, Component){
   return class extends React.Component{
     constructor(props){
       super(props);
-      const observableProps = new Rx.Observable(s => this.componentWillReceiveProps = nextProps => s.next(nextProps))
+
+      this.propsSubject = new Rx.Subject();
+      const observableProps = new Rx.Observable(s => this.propsSubject.subscribe(s))
         .startWith(props);
 
       const {functions, sources} = deconstructActions(actions);
@@ -31,6 +33,10 @@ export default function connect(actions, observablesFactory, Component){
         });
       }
       this.state = state;
+    }
+
+    componentWillReceiveProps(nextProps){
+      this.propsSubject.next(nextProps);
     }
 
     cmponentDidUnmount(){
