@@ -33,19 +33,23 @@ test('returns functions', t => {
   });
 
   //force subscriber to be called
-  result.sources.test.forEach(() => null);
+  result.sources.test.subscribe(() => null);
 
   t.truthy(result.functions.test);
   t.is(typeof result.functions.test, 'function');
 });
 
 test('triggering an action should trigger the observable value', t => {
+  console.log('---------------------');
   t.plan(2);
   const result = deconstructActions({
     'test': x => x
   });
 
+  result.sources.test.do(x => console.log('test', x)).forEach(() => null);
+
   result.sources.test.forEach(x => {
+    console.log('forEach', x);
     t.is(x, 'hello');
   });
 

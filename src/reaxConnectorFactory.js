@@ -12,15 +12,14 @@ export default function connect(actions, observablesFactory, Component){
       const observableProps = new Rx.Observable(s => this.propsSubject.subscribe(s))
         .startWith(props);
 
-      const {functions, sources} = deconstructActions(actions);
+      const {functions, sources, completes} = deconstructActions(actions);
       const observables = observablesFactory(sources, observableProps, props);
 
       this.functions = functions;
-      this.subscriptions = Rx.Observable.merge(
-        ...Object.keys(observables).map(x => observables[x]),
-        ...Object.keys(sources).map(x => sources[x]),
-        observableProps
-      ).subscribe();
+      this.cleanup = () => {
+        this.propsSubject.complete();
+        completes.forEach(c => c());
+      }
 
       var state = {};
       for(let key of Object.keys(observables)){
@@ -40,7 +39,7 @@ export default function connect(actions, observablesFactory, Component){
     }
 
     cmponentDidUnmount(){
-      this.subscriptions.unsubscribe();
+      this.cleanup();
     }
 
     render(){
