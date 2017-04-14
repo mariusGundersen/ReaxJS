@@ -1,7 +1,7 @@
 import test from 'ava';
-import React from 'react';
+import * as React from 'react';
 
-import reaxConnectorFactory from './reaxConnectorFactory.js';
+import reaxConnectorFactory from './reaxConnectorFactory';
 
 const Test = reaxConnectorFactory({
   input: event => event.target.value
@@ -10,10 +10,10 @@ const Test = reaxConnectorFactory({
 }) => ({
   output: input.map(x => x.toUpperCase())
 }),
-({observables, actions}) => (
+({actions, output}) => (
   <div>
     <input onChange={actions.input} />
-    <span>{observables.output}</span>
+    <span>{output}</span>
   </div>
 ));
 

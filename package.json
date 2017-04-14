@@ -2,11 +2,17 @@
   "name": "reaxjs",
   "version": "0.1.7",
   "description": "react+rxjs",
-  "main": "lib/main.js",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "module": "lib/main.js",
   "scripts": {
-    "compile": "babel -d lib/ src/",
-    "prepublish": "npm run compile",
-    "test": "ava"
+    "clean": "rm -rf ./lib ./dist",
+    "test": "ava",
+    "typescript": "tsc",
+    "compile": "npm run typescript && npm run babel",
+    "babel": "babel --source-maps --copy-files -d dist lib",
+    "watch": "tsc -w & ava -w",
+    "prepublish": "npm run clean && npm run compile && npm test"
   },
   "repository": {
     "type": "git",
@@ -22,25 +28,27 @@
     "url": "https://github.com/mariusGundersen/reaxjs/issues"
   },
   "homepage": "https://github.com/mariusGundersen/reaxjs#readme",
-  "devDependencies": {
-    "ava": "^0.17.0",
-    "babel-cli": "^6.18.0",
-    "babel-preset-react": "^6.16.0",
+  "dependencies": {
     "react": "^15.4.1",
     "rxjs": "^5.0.2"
   },
+  "devDependencies": {
+    "@types/react": "^15.0.21",
+    "ava": "^0.17.0",
+    "babel-cli": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "typescript": "^2.2.2"
+  },
   "ava": {
+    "files": [
+      "lib/**/*.test.js",
+      "src/**/*.test.js"
+    ],
+    "source": [
+      "lib/**/*.js"
+    ],
     "require": [
       "babel-register"
-    ],
-    "babel": "inherit"
-  },
-  "babel": {
-    "presets": [
-      "react",
-      "es2015",
-      "stage-2",
-      "stage-3"
     ]
   }
 }

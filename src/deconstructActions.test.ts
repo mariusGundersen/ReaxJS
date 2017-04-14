@@ -1,13 +1,7 @@
 import test from 'ava';
-import Rx from 'rxjs/Rx';
+import * as Rx from 'rxjs/Rx';
 
-import deconstructActions from './deconstructActions.js';
-
-test('not a function should throw', t => {
-  t.throws(() => deconstructActions({
-    'test': null
-  }));
-});
+import deconstructActions, {Actions} from './deconstructActions';
 
 test('returns an object with functions and sources', t => {
   const result = deconstructActions({
@@ -40,16 +34,14 @@ test('returns functions', t => {
 });
 
 test('triggering an action should trigger the observable value', t => {
-  console.log('---------------------');
   t.plan(2);
   const result = deconstructActions({
     'test': x => x
   });
 
-  result.sources.test.do(x => console.log('test', x)).forEach(() => null);
+  result.sources.test.forEach(() => null);
 
   result.sources.test.forEach(x => {
-    console.log('forEach', x);
     t.is(x, 'hello');
   });
 
