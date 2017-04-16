@@ -2,25 +2,33 @@ import * as React from 'react';
 import * as Rx from 'rxjs/Rx';
 
 import deconstructActions, {
+  ActionMappings,
   Actions,
-  Functions,
-  Sources
+  ObservableActions,
+  Dict
 } from './deconstructActions';
 
-export type ObservablesFactory<P> = (
-  sources : Sources,
+export type Observables<R extends Dict> = {
+  [ O in keyof R ] : Rx.Observable<R[O]>
+};
+
+export type ObservablesFactory<P, T, I> = (
+  sources : ObservableActions<I>,
   props : Rx.Observable<P>,
   initalProps : P
-) => ({
-  [ key : string ] : Rx.Observable<any>
-});
+) => Observables<T>;
 
-export {Actions};
+export type Component<E, P, R> = React.StatelessComponent<{actions : Actions<E>, props : P, results : R}>;
 
-export default function connect<P>(actions : Actions, observablesFactory : ObservablesFactory<P>, Component : (props : any) => JSX.Element) {
-  return class extends React.Component<P, any>{
+export {ActionMappings, Actions, ObservableActions, Dict};
+
+export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
+  actionMappings : ActionMappings<E, I>,
+  observablesFactory : ObservablesFactory<P, R, I>,
+  Component : Component<E, P, R>) {
+  return class extends React.Component<P, R>{
     propsSubject : Rx.Subject<P>;
-    functions : Functions;
+    actions : Actions<E>;
     cleanup : () => void;
 
     constructor(props : P){
@@ -30,16 +38,16 @@ export default function connect<P>(actions : Actions, observablesFactory : Obser
       const observableProps = new Rx.Observable<P>(s => this.propsSubject.subscribe(s))
         .startWith(props);
 
-      const {functions, sources, completes} = deconstructActions(actions);
-      const observables = observablesFactory(sources, observableProps, props);
+      const {actions, observableActions, completes} = deconstructActions(actionMappings);
+      const observables = observablesFactory(observableActions, observableProps, props);
 
-      this.functions = functions;
+      this.actions = actions;
       this.cleanup = () => {
         this.propsSubject.complete();
         completes.forEach(c => c());
       }
 
-      var state = {} as { [key : string] : any };
+      var state = {} as R;
       for(let key of Object.keys(observables)){
         observables[key].forEach(value => {
           if(this.state){
@@ -61,7 +69,7 @@ export default function connect<P>(actions : Actions, observablesFactory : Obser
     }
 
     render(){
-      return <Component actions={this.functions} {...this.props} {...this.state} />;
+      return <Component actions={this.actions} props={this.props} results={this.state} />;
     }
   } as React.ComponentClass<P>
 }

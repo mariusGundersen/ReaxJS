@@ -4,16 +4,16 @@ import * as React from 'react';
 import reaxConnectorFactory from './reaxConnectorFactory';
 
 const Test = reaxConnectorFactory({
-  input: event => event.target.value
+  input: (event : React.ChangeEvent<HTMLInputElement>) => event.target.value
 },({
   input
 }) => ({
   output: input.map(x => x.toUpperCase())
 }),
-({actions, output}) => (
+({actions, results}) => (
   <div>
     <input onChange={actions.input} />
-    <span>{output}</span>
+    <span>{results.output}</span>
   </div>
 ));
 

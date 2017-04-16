@@ -1,24 +1,24 @@
-import reaxConnectorFactory, {Actions, ObservablesFactory} from './reaxConnectorFactory';
+import reaxConnectorFactory, {ActionMappings, ObservablesFactory, Dict, Component} from './reaxConnectorFactory';
 
-export default function connect<P>(
-  actions : Actions,
-  observablesFactory : ObservablesFactory<P>,
-  Component : (props : any) => JSX.Element)
+export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
+  actionMappings : ActionMappings<E, I>,
+  observablesFactory : ObservablesFactory<P, R, I>,
+  Component : Component<E, P, R>)
 : React.ComponentClass<P>;
-export default function connect<P>(
-  actions : Actions,
-  observablesFactory : ObservablesFactory<P>)
-: (Component : (props : any) => JSX.Element) => React.ComponentClass<P>;
-export default function connect<P>(
-  actions : Actions,
-  observablesFactory : ObservablesFactory<P>,
-  Component? : (props : any) => JSX.Element){
+export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
+  actionMappings : ActionMappings<E, I>,
+  observablesFactory : ObservablesFactory<P, R, I>)
+: (Component : Component<E, P, R>) => React.ComponentClass<P>;
+export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
+  actionMappings : ActionMappings<E, I>,
+  observablesFactory : ObservablesFactory<P, R, I>,
+  Component? : Component<E, P, R>){
   if(Component === undefined){
-    return (Component : (props : any) => JSX.Element) => connect(actions, observablesFactory, Component);
+    return (Component : Component<E, P, R>) => connect(actionMappings, observablesFactory, Component);
   }
 
-  if(!actions || typeof actions !== 'object') throw new Error('`actions` must be an object');
+  if(!actionMappings || typeof actionMappings !== 'object') throw new Error('`actions` must be an object');
   if(!observablesFactory || typeof observablesFactory !== 'function') throw new Error('`observablesFactory` must be a function');
 
-  return reaxConnectorFactory(actions, observablesFactory, Component);
+  return reaxConnectorFactory(actionMappings, observablesFactory, Component);
 }
