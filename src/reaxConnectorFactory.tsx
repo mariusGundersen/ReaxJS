@@ -64,7 +64,7 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
       this.propsSubject.next(nextProps);
     }
 
-    cmponentWillUnmount(){
+    componentWillUnmount(){
       this.cleanup();
     }
 
