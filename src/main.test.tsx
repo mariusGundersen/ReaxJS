@@ -1,12 +1,13 @@
 import * as React from 'react';
 import * as Rx from 'rxjs/Rx';
 import reax from './main';
+import test from 'ava';
 
-export interface Props {
+interface Props {
   readonly initalValue : number
 }
 
-export default reax({
+const Increment = reax({
   increment: (e : React.SyntheticEvent<HTMLButtonElement>) => +1,
   decrement: (e : React.SyntheticEvent<HTMLButtonElement>) => -1,
 }, (events, props, initalProps : Props) => ({
@@ -21,3 +22,9 @@ export default reax({
     <button onClick={events.increment}>+</button>
   </div>
 ));
+
+test(t => {
+  const increment = new Increment({
+    initalValue: 0
+  });
+})
