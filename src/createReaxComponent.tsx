@@ -2,34 +2,34 @@ import * as React from 'react';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 
-import deconstructActions, {
-  ActionMappings,
-  Actions,
-  ObservableActions,
+import deconstructEventMappings, {
+  EventMappings,
+  Events,
+  ObservableEvents,
   Dict
-} from './deconstructActions';
+} from './deconstructEventMappings';
 
 export type Observables<R extends Dict> = {
   [ O in keyof R ] : Observable<R[O]>
 };
 
 export type ObservablesFactory<P, T, I> = (
-  sources : ObservableActions<I>,
+  sources : ObservableEvents<I>,
   props : Observable<P>,
   initalProps : P
 ) => Observables<T>;
 
-export type Component<E, P, R> = React.StatelessComponent<{actions : Actions<E>, props : P, results : R}>;
+export type Component<E, P, R> = React.StatelessComponent<{events : Events<E>, props : P, values : R}>;
 
-export {ActionMappings, Actions, ObservableActions, Dict};
+export {EventMappings, Events, ObservableEvents, Dict};
 
-export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
-  actionMappings : ActionMappings<E, I>,
+export default function createReaxComponent<E extends Dict, I extends Dict, R extends Dict, P>(
+  eventMappings : EventMappings<E, I>,
   observablesFactory : ObservablesFactory<P, R, I>,
   Component : Component<E, P, R>) {
   return class extends React.Component<P, R>{
     private readonly propsSubject : BehaviorSubject<P>;
-    private readonly actions : Actions<E>;
+    private readonly events : Events<E>;
     private readonly completes : (() => void)[];
 
     constructor(props : P){
@@ -37,10 +37,10 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
 
       this.propsSubject = new BehaviorSubject<P>(props);
 
-      const {actions, observableActions, completes} = deconstructActions(actionMappings);
-      const observables = observablesFactory(observableActions, this.propsSubject, props);
+      const {events, observableEvents, completes} = deconstructEventMappings(eventMappings);
+      const observables = observablesFactory(observableEvents, this.propsSubject, props);
 
-      this.actions = actions;
+      this.events = events;
       this.completes = completes;
 
       var state = {} as R;
@@ -66,7 +66,7 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
     }
 
     render(){
-      return <Component actions={this.actions} props={this.props} results={this.state} />;
+      return <Component events={this.events} props={this.props} values={this.state} />;
     }
   } as React.ComponentClass<P>
 }

@@ -1,39 +1,39 @@
-import reaxConnectorFactory, {ActionMappings, ObservablesFactory, Dict, Component} from './reaxConnectorFactory';
+import createReaxComponent, {EventMappings, ObservablesFactory, Dict, Component} from './createReaxComponent';
 
-export default function connect<P>()
+export default function reax<P>()
   : <E, I, R>(
-    actionMappings : ActionMappings<E, I>,
+    eventMappings : EventMappings<E, I>,
     observablesFactory : ObservablesFactory<P, R, I>,
     Component : Component<E, P, R>)
     => React.ComponentClass<P>;
 
-export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
-  actionMappings : ActionMappings<E, I>,
+export default function reax<E extends Dict, I extends Dict, R extends Dict, P>(
+  eventMappings : EventMappings<E, I>,
+  observablesFactory : ObservablesFactory<P, R, I>)
+: (Component : Component<E, P, R>) => React.ComponentClass<P>;
+
+export default function reax<E extends Dict, I extends Dict, R extends Dict, P>(
+  eventMappings : EventMappings<E, I>,
   observablesFactory : ObservablesFactory<P, R, I>,
   Component : Component<E, P, R>)
 : React.ComponentClass<P>;
 
-export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
-  actionMappings : ActionMappings<E, I>,
-  observablesFactory : ObservablesFactory<P, R, I>)
-: (Component : Component<E, P, R>) => React.ComponentClass<P>;
-
-export default function connect<E extends Dict, I extends Dict, R extends Dict, P>(
-  actionMappings? : ActionMappings<E, I>,
+export default function reax<E extends Dict, I extends Dict, R extends Dict, P>(
+  eventMappings? : EventMappings<E, I>,
   observablesFactory? : ObservablesFactory<P, R, I>,
   Component? : Component<E, P, R>){
-  if(actionMappings === undefined || observablesFactory === undefined){
+  if(eventMappings === undefined || observablesFactory === undefined){
     return <E, I, R>(
-      actionMappings : ActionMappings<E, I>,
+      eventMappings : EventMappings<E, I>,
       observablesFactory : ObservablesFactory<P, R, I>,
-      Component : Component<E, P, R>) => connect(actionMappings, observablesFactory, Component);
+      Component : Component<E, P, R>) => reax(eventMappings, observablesFactory, Component);
   }
   if(Component === undefined){
-    return (Component : Component<E, P, R>) => connect(actionMappings, observablesFactory, Component);
+    return (Component : Component<E, P, R>) => reax(eventMappings, observablesFactory, Component);
   }
 
-  if(!actionMappings || typeof actionMappings !== 'object') throw new Error('`actions` must be an object');
+  if(!eventMappings || typeof eventMappings !== 'object') throw new Error('`eventMappings` must be an object');
   if(!observablesFactory || typeof observablesFactory !== 'function') throw new Error('`observablesFactory` must be a function');
 
-  return reaxConnectorFactory(actionMappings, observablesFactory, Component);
+  return createReaxComponent(eventMappings, observablesFactory, Component);
 }

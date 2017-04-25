@@ -11,7 +11,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "inlineSourceMap": false,
-    "inlineSources": false,
+    "inlineSources": true,
     "declaration": true,
     "jsx": "react",
     "lib": [
