@@ -3,13 +3,14 @@
   "version": "0.3.3",
   "description": "react+rxjs",
   "main": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "types": "lib/main.d.ts",
+  "module": "lib/main.js",
   "scripts": {
     "clean": "rm -rf ./lib ./dist",
     "test": "ava",
-    "typescript": "tsc",
-    "compile": "npm run typescript && npm run babel",
-    "babel": "babel --source-maps --copy-files -d dist lib",
+    "tsc": "tsc",
+    "compile": "npm run tsc && npm run babel",
+    "babel": "babel --source-maps -d dist lib",
     "watch": "tsc -w & ava -w",
     "prepublish": "npm run clean && npm run compile && npm test"
   },

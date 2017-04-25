@@ -44,7 +44,7 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
       this.completes = completes;
 
       var state = {} as R;
-      for(let key of Object.keys(observables)){
+      Object.keys(observables).forEach(key => {
         observables[key].forEach(value => {
           if(this.state){
             this.setState({[key]: value});
@@ -52,7 +52,7 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
             state[key] = value;
           }
         });
-      }
+      })
       this.state = state;
     }
 

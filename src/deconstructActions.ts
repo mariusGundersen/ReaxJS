@@ -25,14 +25,14 @@ export default function deconstruct<E extends Dict, I extends Dict>(actionMappin
   const actions = Object.create(null) as Actions<I>;
   const observableActions = Object.create(null) as ObservableActions<E>;
   const completes = [] as Complete[];
-  for(let key of Object.keys(actionMappings)){
+  Object.keys(actionMappings).forEach(key => {
     if(typeof actionMappings[key] !== 'function') throw new Error(`action ${key} must be a function`);
 
     const subject = new Subject<any>();
     actions[key] = v => subject.next(actionMappings[key](v));
     completes.push(() => subject.complete());
     observableActions[key] = subject;
-  }
+  });
 
   return {
     actions,
