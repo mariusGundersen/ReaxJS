@@ -48,3 +48,16 @@ test('triggering an action should trigger the observable value', t => {
   result.actions.test('hello');
   result.actions.test('hello');
 });
+
+test('triggering an action once should affect both subscribers', t => {
+  t.plan(2);
+  const result = deconstructActions({
+    test: (x : string) => x
+  });
+
+  result.observableActions.test.forEach(x => t.is(x, 'hello'));
+
+  result.observableActions.test.forEach(x => t.is(x, 'hello'));
+
+  result.actions.test('hello');
+});

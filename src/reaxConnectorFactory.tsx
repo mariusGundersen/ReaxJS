@@ -1,5 +1,6 @@
 import * as React from 'react';
-import * as Rx from 'rxjs/Rx';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 import deconstructActions, {
   ActionMappings,
@@ -9,12 +10,12 @@ import deconstructActions, {
 } from './deconstructActions';
 
 export type Observables<R extends Dict> = {
-  [ O in keyof R ] : Rx.Observable<R[O]>
+  [ O in keyof R ] : Observable<R[O]>
 };
 
 export type ObservablesFactory<P, T, I> = (
   sources : ObservableActions<I>,
-  props : Rx.Observable<P>,
+  props : Observable<P>,
   initalProps : P
 ) => Observables<T>;
 
@@ -27,25 +28,20 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
   observablesFactory : ObservablesFactory<P, R, I>,
   Component : Component<E, P, R>) {
   return class extends React.Component<P, R>{
-    propsSubject : Rx.Subject<P>;
-    actions : Actions<E>;
-    cleanup : () => void;
+    private readonly propsSubject : BehaviorSubject<P>;
+    private readonly actions : Actions<E>;
+    private readonly completes : (() => void)[];
 
     constructor(props : P){
       super(props);
 
-      this.propsSubject = new Rx.Subject<P>();
-      const observableProps = new Rx.Observable<P>(s => this.propsSubject.subscribe(s))
-        .startWith(props);
+      this.propsSubject = new BehaviorSubject<P>(props);
 
       const {actions, observableActions, completes} = deconstructActions(actionMappings);
-      const observables = observablesFactory(observableActions, observableProps, props);
+      const observables = observablesFactory(observableActions, this.propsSubject, props);
 
       this.actions = actions;
-      this.cleanup = () => {
-        this.propsSubject.complete();
-        completes.forEach(c => c());
-      }
+      this.completes = completes;
 
       var state = {} as R;
       for(let key of Object.keys(observables)){
@@ -65,7 +61,8 @@ export default function connect<E extends Dict, I extends Dict, R extends Dict, 
     }
 
     componentWillUnmount(){
-      this.cleanup();
+      this.propsSubject.complete();
+      this.completes.forEach(c => c());
     }
 
     render(){

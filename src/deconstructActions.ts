@@ -1,4 +1,5 @@
-import * as Rx from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 export type Dict = {
   [k : string] : any
@@ -15,7 +16,7 @@ export type Actions<E extends Dict> = {
 }
 
 export type ObservableActions<I extends Dict> = {
-  [T in keyof I] : Rx.Observable<I[T]>
+  [T in keyof I] : Observable<I[T]>
 }
 
 export type Complete = () => void;
@@ -27,10 +28,10 @@ export default function deconstruct<E extends Dict, I extends Dict>(actionMappin
   for(let key of Object.keys(actionMappings)){
     if(typeof actionMappings[key] !== 'function') throw new Error(`action ${key} must be a function`);
 
-    const subject = new Rx.Subject<any>();
+    const subject = new Subject<any>();
     actions[key] = v => subject.next(actionMappings[key](v));
     completes.push(() => subject.complete());
-    observableActions[key] = new Rx.Observable<any>(s => subject.subscribe(s));
+    observableActions[key] = subject;
   }
 
   return {
