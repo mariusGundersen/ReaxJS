@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import deconstructEventMappings, {
   EventMappings,

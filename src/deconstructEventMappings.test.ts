@@ -1,5 +1,5 @@
 import test from 'ava';
-import * as Rx from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 
 import deconstructEventMappings, {EventMappings} from './deconstructEventMappings';
 
@@ -18,7 +18,7 @@ test('returns sources', t => {
   });
 
   t.truthy(result.observableEvents.test);
-  t.true(result.observableEvents.test instanceof Rx.Observable);
+  t.true(result.observableEvents.test instanceof Observable);
 });
 
 test('returns functions', t => {

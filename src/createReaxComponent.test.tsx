@@ -1,6 +1,8 @@
 import test from 'ava';
 import * as React from 'react';
 
+import { map } from 'rxjs/operators';
+
 import createReaxComponent from './createReaxComponent';
 
 const Test = createReaxComponent({
@@ -8,7 +10,9 @@ const Test = createReaxComponent({
 },({
   input
 }) => ({
-  output: input.map(x => x.toUpperCase())
+  output: input.pipe(
+    map(x => x.toUpperCase())
+  )
 }),
 ({events, values}) => (
   <div>
