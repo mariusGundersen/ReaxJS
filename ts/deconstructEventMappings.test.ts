@@ -1,7 +1,7 @@
 import test from 'ava';
 import { Observable } from 'rxjs';
 
-import deconstructEventMappings, {EventMappings} from './deconstructEventMappings';
+import deconstructEventMappings from './deconstructEventMappings';
 
 test('returns an object with functions and sources', t => {
   const result = deconstructEventMappings({
@@ -14,7 +14,7 @@ test('returns an object with functions and sources', t => {
 
 test('returns sources', t => {
   const result = deconstructEventMappings({
-    test: (x : string) => x
+    test: (x: string) => x
   });
 
   t.truthy(result.observableEvents.test);
@@ -23,7 +23,7 @@ test('returns sources', t => {
 
 test('returns functions', t => {
   const result = deconstructEventMappings({
-    test: (x : string) => x
+    test: (x: string) => x
   });
 
   //force subscriber to be called
@@ -36,7 +36,7 @@ test('returns functions', t => {
 test('triggering an action should trigger the observable value', t => {
   t.plan(2);
   const result = deconstructEventMappings({
-    test: (x : string) => x
+    test: (x: string) => x
   });
 
   result.observableEvents.test.forEach(() => null);
@@ -52,7 +52,7 @@ test('triggering an action should trigger the observable value', t => {
 test('triggering an action once should affect both subscribers', t => {
   t.plan(2);
   const result = deconstructEventMappings({
-    test: (x : string) => x
+    test: (x: string) => x
   });
 
   result.observableEvents.test.forEach(x => t.is(x, 'hello'));
@@ -60,4 +60,10 @@ test('triggering an action once should affect both subscribers', t => {
   result.observableEvents.test.forEach(x => t.is(x, 'hello'));
 
   result.events.test('hello');
+});
+
+test('not a function should throw', t => {
+  t.throws(() => deconstructEventMappings({
+    'test': null as any
+  }));
 });

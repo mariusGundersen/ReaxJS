@@ -1,43 +1,26 @@
 import { Observable, Subject } from 'rxjs';
 
-export type Dict = Record<string, any>;
+export type Event<Event> = (event: Event) => void;
 
-export type EventMapping<E, I> = (event: E) => I;
-export type Event<E> = (event: E) => void;
+export type EventMapping<Event, Value> = (event: Event) => Value;
 
-export type EventMappings3 = Record<string, EventMapping<any, any>>;
+export type EventMappings = Record<string, EventMapping<any, any>>;
 
-export type EventMappings<E extends Dict, I extends Dict> = {
-  [T in keyof E] : (event : E[T]) => any
-} & {
-  [T in keyof I] : (event : any) => I[T]
-}
+export type Events<Mappings> = Record<keyof Mappings, Event<Mappings[keyof Mappings] extends EventMapping<infer Event, any> ? Event : never>>;
 
-export type EventMappings2<E extends Record<string, (e: any) => any>> = {
-  [T in keyof E] : E[T] extends (event : infer Event) => infer Input ? (event : Event) => Input : never
-}
-
-export type Events<E extends Dict> = {
-  [T in keyof E] : (event : E[T]) => void
-}
-export type Events2  = Record<string, Event<any>>;
-
-export type ObservableEvents<I extends Dict> = {
-  [T in keyof I] : Observable<I[T]>
-}
-export type ObservableEvents2 = Record<string, Observable<any>>;
+export type ObservableEvents<Mappings> = Record<keyof Mappings, Observable<Mappings[keyof Mappings] extends EventMapping<any, infer Value> ? Value : never>>;
 
 export type Complete = () => void;
 
-export default function deconstructEventMappings<E extends Dict, I extends Dict>(eventMappings : EventMappings<E, I>){
-  const events = Object.create(null) as Events<E>;
-  const observableEvents = Object.create(null) as ObservableEvents<I>;
+export default function deconstructEventMappings<Mappings extends EventMappings>(eventMappings: Mappings) {
+  const events = Object.create(null) as Events<Mappings>;
+  const observableEvents = Object.create(null) as ObservableEvents<Mappings>;
   const completes = [] as Complete[];
-  const keys = Object.keys(eventMappings) as (keyof E & keyof I)[];
+  const keys = Object.keys(eventMappings) as (keyof Mappings)[];
   keys.forEach(key => {
-    if(typeof eventMappings[key] !== 'function') throw new Error(`event ${key} must be a function`);
+    if (typeof eventMappings[key] !== 'function') throw new Error(`event ${key} must be a function`);
 
-    const subject = new Subject<any>();
+    const subject = new Subject<any>();
     events[key] = v => subject.next(eventMappings[key](v));
     completes.push(() => subject.complete());
     observableEvents[key] = subject;
