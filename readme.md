@@ -23,11 +23,12 @@ const Demo = reax({
   input: event => event.target.value
 },
 ({input}) => ({
-  output: input
-    .map(x => x.toUpperCase()).
-    .startWith('')
+  output: input.pipe(
+    map(x => x.toUpperCase()).
+    startWith('')
+  )
 }),
-({events, values}) => (
+(values, events) => (
   <div>
     <input onChange={events.input} />
     <span>{values.output}</span>
@@ -55,9 +56,10 @@ This pure component can be wrapped with a stateful react component or Redux. Wri
 
 ```js
 function toUpperCase(inputObservable){
-  return inputObservable
-    .map(x => x.toUpperCase()).
-    .startWith('');
+  return inputObservable.pipe(
+    map(x => x.toUpperCase()).
+    startWith('')
+  );
 }
 ```
 
@@ -66,7 +68,7 @@ This function takes an observable as parameter and returns an observable. It wil
 We can use `reax` to combine the pure component and the toUpperCase function.
 
 ```js
-const Component = reax(eventsToValues, observablesFactory, PureComponent);
+const Component = reax(eventsToValues, observablesFactory, (values, events) => <PureDemo values={values} events={events} />);
 ```
 
 The first parameter to `reax` is an object of functions, each function mapping from an event to a value. The `events` object used in the `PureDemo` component has the same keys as this object. When you call one of the functions on the `events`, then the corresponding function on `eventsToValues` will be called. These functions are used to convert react events to values. For the `PureDemo` component it should look like this:
@@ -94,7 +96,7 @@ Each returned observable can use one or more events, and can use the props for i
 Now that we have `events` and the `observablesFactory` we can combine them with `PureDemo` using `reax`:
 
 ```js
-reax(events, observablesFactory, PureDemo);
+reax(events, observablesFactory, (values, events) => <PureDemo values={values} events={events} />);
 
 //which is the same as
 
@@ -104,7 +106,7 @@ reax({
 (events, props) => ({
   output: toUpperCase(events.input)
 }),
-({events, values}) => (
+(values, events) => (
   <div>
     <input onChange={events.input} />
     <span>{values.output}</span>
@@ -136,9 +138,12 @@ Props passed to the `reax`ed component will be forwarded to the pure component, 
 function observablesFactory(events, props){
   return {
     sum: Rx.Observable.merge(
-      events.increment.withLatestFrom(props.pluck('delta'), (_, delta) => +delta),
-      events.decrement.withLatestFrom(props.pluck('delta'), (_, delta) => -delta)
-    ).scan((sum, delta) => sum+delta, 0)
+      events.increment,
+      events.decrement
+    ).pipe(
+      withLatestFrom(props, (dir, {delta}) => dir*delta),
+      scan((sum, delta) => sum+delta, 0)
+    )
   };
 }
 
@@ -153,9 +158,11 @@ function observablesFactory(events, props){
 function observablesFactory(events, props, initalProps){
   return {
     sum: Rx.Observable.merge(
-      events.increment.map(x => +1),
-      events.decrement.map(x => -1)
-    ).scan((sum, delta) => sum+delta, initialProps.initial)
+      events.increment,
+      events.decrement
+    ).pipe(
+      scan((sum, delta) => sum+delta, initialProps.initial)
+    )
   }
 }
 
@@ -171,21 +178,23 @@ ReaxJS is written in TypeScript, and works very well with type inference. Specif
 ```typescript
 import * as React from 'react';
 import * as Rx from 'rxjs/Rx';
-import reax from './main';
+import reax, {constant} from 'reaxjs';
 
 export interface Props {
   readonly initalValue : number
 }
 
 export default reax({
-  increment: (e : React.SyntheticEvent<HTMLButtonElement>) => +1,
-  decrement: (e : React.SyntheticEvent<HTMLButtonElement>) => -1,
+  increment: constant(+1),
+  decrement: constant(-1),
 }, (events, props, initalProps : Props) => ({
   sum: Rx.Observable.merge(
     events.increment,
     events.decrement
-  ).scan((sum, delta) => sum+delta, initalProps.initalValue)
-}), ({events, values, props}) => (
+  ).pipe(
+    scan((sum, delta) => sum+delta, initalProps.initalValue)
+  )
+}), (values, events, props) => (
   <div>
     <button onClick={events.decrement}>-</button>
     <span>{values.sum}</span>
@@ -193,6 +202,8 @@ export default reax({
   </div>
 ));
 ```
+
+In this example the `constant(value)` function is used. It lets you disregard the type of the event and set it to always return a constant value. This is useful for example for button clicks, where the contents of the event isn't useful. In the above example increment will always return +1 and decrement will always return -1. You can also use `constant()` without passing in any argument, in which case it will always return `true`.
 
 ## Inspiration
 

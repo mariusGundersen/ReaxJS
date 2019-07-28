@@ -14,7 +14,7 @@ const Test = createReaxComponent({
     map(x => x.toUpperCase())
   )
 }),
-  ({ events, values }) => (
+  (values, events) => (
     <div>
       <input onChange={events.input} />
       <span>{values.output}</span>

@@ -6,9 +6,13 @@ export type EventMapping<Event, Value> = (event: Event) => Value;
 
 export type EventMappings = Record<string, EventMapping<any, any>>;
 
-export type Events<Mappings> = Record<keyof Mappings, Event<Mappings[keyof Mappings] extends EventMapping<infer Event, any> ? Event : never>>;
+export type Events<Mappings> = {
+  [K in keyof Mappings]: Event<Mappings[K] extends EventMapping<infer Event, any> ? Event : never>
+};
 
-export type ObservableEvents<Mappings> = Record<keyof Mappings, Observable<Mappings[keyof Mappings] extends EventMapping<any, infer Value> ? Value : never>>;
+export type ObservableEvents<Mappings> = {
+  [K in keyof Mappings]: Observable<Mappings[K] extends EventMapping<any, infer Value> ? Value : never>
+};
 
 export type Complete = () => void;
 

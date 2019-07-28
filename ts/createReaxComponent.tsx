@@ -12,25 +12,19 @@ export type Observables<Values extends Record<string, any>> = {
 };
 
 export type ObservablesFactory<Props, Mappings extends EventMappings, Values extends Record<string, any>> = (
-  sources: ObservableEvents<Mappings>,
+  events: ObservableEvents<Mappings>,
   props: Observable<Props>,
   initalProps: Props
 ) => Observables<Values>;
 
-type ComponentProps<Map, Props, Values> = {
-  events: Events<Map>;
-  props: Props;
-  values: Values;
-};
+export type Component<Props, Map, Values> = (values: Values, events: Events<Map>, props: Props) => React.ReactElement | null;
 
-export type Component<Props, Map, Values> = React.StatelessComponent<ComponentProps<Map, Props, Values>>;
-
-export { EventMappings, Events, ObservableEvents };
+export { EventMappings };
 
 export default function createReaxComponent<Mappings extends EventMappings, Values extends Record<string, any>, Props>(
   eventMappings: Mappings,
   observablesFactory: ObservablesFactory<Props, Mappings, Values>,
-  Component: Component<Props, Mappings, Values>) {
+  component: Component<Props, Mappings, Values>) {
   return class extends React.Component<Props, Values>{
     private readonly propsSubject: BehaviorSubject<Props>;
     private readonly events: Events<Mappings>;
@@ -62,8 +56,8 @@ export default function createReaxComponent<Mappings extends EventMappings, Valu
       this.state = state;
     }
 
-    componentWillReceiveProps(nextProps: Props) {
-      this.propsSubject.next(nextProps);
+    componentDidUpdate() {
+      this.propsSubject.next(this.props);
     }
 
     componentWillUnmount() {
@@ -72,7 +66,7 @@ export default function createReaxComponent<Mappings extends EventMappings, Valu
     }
 
     render() {
-      return <Component events={this.events} props={this.props} values={this.state} />;
+      return component(this.state, this.events, this.props);
     }
   } as React.ComponentClass<Props, Values>
 }
