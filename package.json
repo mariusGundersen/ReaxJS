@@ -1,6 +1,6 @@
 {
   "name": "reaxjs",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "react+rxjs",
   "main": "js/main.js",
   "types": "es/main.d.ts",
