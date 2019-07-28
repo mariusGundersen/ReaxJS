@@ -43,15 +43,17 @@ export default function createReaxComponent<E extends Dict, I extends Dict, R ex
       this.completes = completes;
 
       var state = {} as R;
-      Object.keys(observables).forEach(key => {
-        observables[key].forEach(value => {
+      const entries = Object.entries(observables) as [keyof R, Observable<R[keyof R]>][];
+      for(const [key, observable] of entries){
+        observable.forEach(value => {
           if(this.state){
             this.setState({[key]: value});
           }else{
             state[key] = value;
           }
         });
-      })
+      }
+
       this.state = state;
     }
 

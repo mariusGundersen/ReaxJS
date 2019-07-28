@@ -2,15 +2,15 @@
   "name": "reaxjs",
   "version": "0.5.0",
   "description": "react+rxjs",
-  "main": "dist/main.js",
-  "types": "lib/main.d.ts",
-  "module": "lib/main.js",
+  "main": "js/main.js",
+  "types": "es/main.d.ts",
+  "module": "es/main.js",
   "scripts": {
-    "clean": "rm -rf ./lib ./dist",
+    "clean": "rimraf ./es ./js",
     "test": "ava",
     "tsc": "tsc",
     "compile": "npm run tsc && npm run babel",
-    "babel": "babel --source-maps -d dist lib",
+    "babel": "babel --source-maps -d js es",
     "watch": "tsc -w & ava -w",
     "prepublish": "npm run clean && npm run compile && npm test"
   },
@@ -33,24 +33,31 @@
     "rxjs": "^6.1.0"
   },
   "devDependencies": {
-    "@types/react": "^16.3.14",
-    "ava": "^0.17.0",
-    "babel-cli": "^6.18.0",
-    "babel-preset-react": "^6.16.0",
-    "react": "^16.3.2",
-    "rxjs": "^6.1.0",
-    "typescript": "^2.8.3"
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "@babel/runtime": "^7.5.5",
+    "@types/node": "^10.0.0",
+    "@types/react-dom": "^16.8.5",
+    "ava": "^2.2.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "rimraf": "^2.6.3",
+    "rxjs": "^6.5.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
   },
   "ava": {
-    "files": [
-      "lib/**/*.test.js",
-      "src/**/*.test.js"
-    ],
-    "source": [
-      "lib/**/*.js"
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
     ],
     "require": [
-      "babel-register"
+      "ts-node/register",
+      "@babel/register"
     ]
   }
 }
